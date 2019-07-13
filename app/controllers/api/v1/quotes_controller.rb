@@ -32,14 +32,12 @@ module Api
 
       # api_vi_quote_path	PATCH/PUT	/quotes/:id(.:format) api/v1/quotes#update
       # Use the value of token returned from CREATE request as :id
-      def update
-        quote = Quote.find_by(token: params[:id])
-        if quote.present?
-          # render json: pricing_service.calculate(quote)
-        else
-          render_unauthorized
-        end
-      end
+      #
+      # NOT IMPLEMENTING UPDATE TO SAVE TIME
+      # 
+      # def update
+      #
+      # end
 
       # api_v1_quote_path	DELETE	/quotes/:id(.:format) api/v1/quotes#destroy
       # Use the value of token returned from CREATE request as :id

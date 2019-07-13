@@ -1,2 +1,0 @@
-#!/bin/bash
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X GET http://localhost:3000/api/v1/quotes/2d8e0a017dd344f090cc9b1d927cf7852a4f6a69cb6999a0f2427dc1c8a21e46

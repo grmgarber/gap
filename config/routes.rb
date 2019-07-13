@@ -3,7 +3,7 @@ Rails.application.routes.draw do
 
   namespace :api, constraints: { format: 'json' } do
     namespace :v1 do
-      resources :quotes, only: %i[create show update destroy]
+      resources :quotes, only: %i[create show destroy]  # I am skipping update to save time
     end
   end
 end

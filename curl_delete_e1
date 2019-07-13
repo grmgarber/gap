@@ -1,3 +1,0 @@
-#!/bin/bash
-# This will fail as the id(token) is incorrect
-curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X DELETE http://localhost:3000/api/v1/quotes/12345
