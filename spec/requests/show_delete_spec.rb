@@ -43,6 +43,9 @@ RSpec.describe "API V1 Quotes", type: 'request' do
     }
   end
 
+  let(:wrong_token) { '1a2b3c4d' }
+  let(:invalid_token_error) { "{\"error\":\"Invalid id(security token): 1a2b3c4d\"}" }
+
   describe "GET /api/v1/quotes" do
     context "with valid token" do
       it "displays the existing quote info" do
@@ -58,13 +61,36 @@ RSpec.describe "API V1 Quotes", type: 'request' do
     end
 
     context "with invalid token" do
-      let(:wrong_token) { '1a2b3c4d' }
-
       it "produces security token violation error when the token does not match any of db records" do
         get "/api/v1/quotes/#{wrong_token}"
 
-        expect(response.body).to eq("{\"error\":\"Invalid id(security token): #{wrong_token}\"}"
-                                 )
+        expect(response.body).to eq(invalid_token_error)
+      end
+    end
+  end
+
+  describe "DELETE /api/v1/quotes" do
+    context "with valid token" do
+      it "deletes the existing quote successfully" do
+        # Create a new quote
+        post "/api/v1/quotes", params: valid_params.to_json, headers: headers
+        token = JSON.parse(response.body)['token']
+
+        # Now delete it
+        expect {delete "/api/v1/quotes/#{token}"}.to change{Quote.count}.by(-1)
+        expect(response.body).to eq("{\"status\":\"Quote and all associated data deleted\"}")
+      end
+    end
+
+    context "with invalid token" do
+      let(:wrong_token) { '1a2b3c4d' }
+
+      it "produces security token violation error when the token does not match any of db records" do
+        # Create a new quote
+        post "/api/v1/quotes", params: valid_params.to_json, headers: headers
+
+        expect {delete "/api/v1/quotes/#{wrong_token}"}.to change{Quote.count}.by(0)
+        expect(response.body).to eq(invalid_token_error)
       end
     end
   end
