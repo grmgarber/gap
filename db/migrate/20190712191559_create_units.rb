@@ -6,7 +6,7 @@ class CreateUnits < ActiveRecord::Migration[5.2]
       t.boolean :vacancy
       t.integer :nbr_bedrooms
       t.integer :nbr_bathrooms
-      t.integer :annual_total
+      t.decimal :annual_total, precision: 11, scale: 2
 
       t.timestamps
     end

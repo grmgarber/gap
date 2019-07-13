@@ -10,17 +10,10 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_12_224843) do
+ActiveRecord::Schema.define(version: 2019_07_13_040557) do
 
-  create_table "addresses", force: :cascade do |t|
-    t.string "street"
-    t.string "city"
-    t.string "state"
-    t.string "postal_code"
-    t.string "country"
-    t.datetime "created_at", null: false
-    t.datetime "updated_at", null: false
-  end
+# Could not dump table "addresses" because of following StandardError
+#   Unknown type 'reference' for column 'property_id'
 
   create_table "expenses_records", force: :cascade do |t|
     t.decimal "marketing", precision: 11, scale: 2
