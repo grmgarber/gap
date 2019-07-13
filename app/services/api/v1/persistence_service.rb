@@ -13,49 +13,27 @@ module Api
         Quote.transaction do
           unless quote_params.key?('address')
             errors << 'Quote: Address is missing'
-            raise ActiveRecord::Rollback, ''
+            rollback
           end
 
           property = Property.create(cap_rate: quote_params['cap_rate'])
           unless property.persisted?
             errors.concat(property.errors.full_messages)
-            raise ActiveRecord::Rollback, ''
+            rollback
           end
 
-          address = Address.new(quote_params['address'])
-          address.property = property
-          unless address.save
-            errors.concat(address.errors.full_messages)
-            raise ActiveRecord::Rollback, ''
-          end
-
-          expense_record = ExpensesRecord.new(quote_params['expenses'])
-          expense_record.property = property
-          unless expense_record.save
-            errors.concat(expense_record.errors.full_messages)
-            raise ActiveRecord::Rollback, ''
-          end
+          save_record(Address.new(quote_params['address']), property, errors)
+          save_record(ExpensesRecord.new(quote_params['expenses']), property, errors)
 
           if quote_params[:rent_roll].blank?
             errors << 'Rent roll is missing or empty'
-            raise ActiveRecord::Rollback, ''
+            rollback
           end
 
-          quote_params[:rent_roll].each do |unit_roll|
-            unit = Unit.new(unit_roll)
-            unit.property = property
-            unless unit.save
-              errors.concat(unit.errors.full_messages)
-              raise ActiveRecord::Rollback, ''
-            end
-          end
+          quote_params[:rent_roll].each {|unit_roll| save_record(Unit.new(unit_roll), property, errors) }
 
-
-          quote = Quote.new(property: property) # token will be added before validation
-          unless quote.save
-            errors << quote.errors.full_messages
-            raise ActiveRecord::Rollback, ''
-          end
+          quote = Quote.new
+          save_record(quote, property, errors)
         end
 
         [quote, errors]
@@ -65,6 +43,20 @@ module Api
         prop = quote.property
         prop.destroy
         prop.destroyed?
+      end
+
+      private
+
+      def save_record(record, property, errors)
+        record.property = property
+        unless record.save
+          errors.concat(record.errors.full_messages)
+          rollback
+        end
+      end
+
+      def rollback
+        raise ActiveRecord::Rollback, ''
       end
     end
   end
