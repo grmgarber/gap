@@ -31,6 +31,7 @@ module Api
       end
 
       # api_vi_quote_path	PATCH/PUT	/quotes/:id(.:format) api/v1/quotes#update
+      # Use the value of token returned from CREATE request as :id
       def update
         quote = Quote.find_by(token: params[:id])
         if quote.present?
@@ -41,6 +42,7 @@ module Api
       end
 
       # api_v1_quote_path	DELETE	/quotes/:id(.:format) api/v1/quotes#destroy
+      # Use the value of token returned from CREATE request as :id
       def destroy
         quote = Quote.find_by(token: params[:id])
         if quote.present?
