@@ -13,7 +13,7 @@ module Api
         Quote.transaction do
           unless quote_params.key?('address')
             errors << 'Quote: Address is missing'
-            return quote, errors
+            raise ActiveRecord::Rollback, ''
           end
 
           property = Property.create(cap_rate: quote_params['cap_rate'])
@@ -28,6 +28,28 @@ module Api
             errors.concat(address.errors.full_messages)
             raise ActiveRecord::Rollback, ''
           end
+
+          expense_record = ExpensesRecord.new(quote_params['expenses'])
+          expense_record.property = property
+          unless expense_record.save
+            errors.concat(expense_record.errors.full_messages)
+            raise ActiveRecord::Rollback, ''
+          end
+
+          if quote_params[:rent_roll].blank?
+            errors << 'Rent roll is missing or empty'
+            raise ActiveRecord::Rollback, ''
+          end
+
+          quote_params[:rent_roll].each do |unit_roll|
+            unit = Unit.new(unit_roll)
+            unit.property = property
+            unless unit.save
+              errors.concat(unit.errors.full_messages)
+              raise ActiveRecord::Rollback, ''
+            end
+          end
+
 
           quote = Quote.new(property: property) # token will be added before validation
           unless quote.save

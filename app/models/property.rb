@@ -4,7 +4,7 @@ class Property < ApplicationRecord
   has_many :units
   has_many :quotes
 
-  validates :cap_rate, presence: true, numericality: { minimum: 0, maximum: 1 }
+  validates :cap_rate, presence: true, numericality: { greater_than: 0, less_than: 1 }
 
   def noi
     total_annual_rent - total_expenses
