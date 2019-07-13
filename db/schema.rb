@@ -10,13 +10,34 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_07_13_162523) do
+ActiveRecord::Schema.define(version: 2019_07_13_175538) do
 
-# Could not dump table "addresses" because of following StandardError
-#   Unknown type 'reference' for column 'property_id'
+  create_table "addresses", force: :cascade do |t|
+    t.string "street"
+    t.string "city"
+    t.string "state"
+    t.string "postal_code"
+    t.string "country"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "property_id"
+    t.index ["property_id"], name: "index_addresses_on_property_id"
+  end
 
-# Could not dump table "expenses_records" because of following StandardError
-#   Unknown type 'reference' for column 'property_id'
+  create_table "expenses_records", force: :cascade do |t|
+    t.decimal "marketing", precision: 11, scale: 2
+    t.decimal "tax", precision: 11, scale: 2
+    t.decimal "insurance", precision: 11, scale: 2
+    t.decimal "repairs", precision: 11, scale: 2
+    t.decimal "admin", precision: 11, scale: 2
+    t.decimal "payroll", precision: 11, scale: 2
+    t.decimal "utility", precision: 11, scale: 2
+    t.decimal "management", precision: 11, scale: 2
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "property_id"
+    t.index ["property_id"], name: "index_expenses_records_on_property_id"
+  end
 
   create_table "properties", force: :cascade do |t|
     t.float "cap_rate"
@@ -33,7 +54,17 @@ ActiveRecord::Schema.define(version: 2019_07_13_162523) do
     t.index ["property_id"], name: "index_quotes_on_property_id"
   end
 
-# Could not dump table "units" because of following StandardError
-#   Unknown type 'reference' for column 'property_id'
+  create_table "units", force: :cascade do |t|
+    t.decimal "monthly_rent", precision: 11, scale: 2
+    t.string "unit_number"
+    t.boolean "vacancy"
+    t.integer "nbr_bedrooms"
+    t.integer "nbr_bathrooms"
+    t.integer "annual_total"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.integer "property_id"
+    t.index ["property_id"], name: "index_units_on_property_id"
+  end
 
 end
