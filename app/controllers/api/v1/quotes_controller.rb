@@ -2,7 +2,7 @@ module Api
   module V1
     class QuotesController < ApplicationController
 
-      before_action :ensure_json_request
+      before_action :ensure_json_request, only: %i[create update] # show and delete have no parameters
 
       # CREATE method returns a security token associated with the quote.
       # User must submit this token with SHOW/UPDATE/DELETE requests.  This ensures that only the quote creators
@@ -11,7 +11,7 @@ module Api
 
       # api_v1_quotes_path	POST	/quotes(.:format)	api/v1/quotes#create
       def create
-        quote, errors = *persistence_service.create(params[:json])
+        quote, errors = *persistence_service.create(params)
         if quote.present?
           render json: pricing_service.calculate(quote).merge(token: quote.token)
         else

@@ -43,33 +43,28 @@ RSpec.describe "API V1 Quotes", type: 'request' do
     }
   end
 
-  describe "POST /api/v1/quotes" do
-    context "with valid parameters" do
-      it "creates a new quote successfully" do
+  describe "GET /api/v1/quotes" do
+    context "with valid token" do
+      it "displays the existing quote info" do
         post "/api/v1/quotes", params: valid_params.to_json, headers: headers
+        token = JSON.parse(response.body)['token']
 
-        rb_resp = JSON.parse(response.body).except!("token") # token is random, so kill it
+        get "/api/v1/quotes/#{token}" # We do not require SHOW to be JSON only, as there are no parameters
+
+        rb_resp = JSON.parse(response.body).except!("token")
+
         expect(rb_resp.to_json).to eq("{\"debt_rate\":0.04124,\"loan_amount\":\"869000.0\",\"monthly_payment\":\"8849.51\"}")
       end
     end
 
-    context "with invalid parameters" do
-      # Many tests would be needed here for production level code, but I will only implement two tests here
-      #
-      it "returns an error when address is missing" do
-        post "/api/v1/quotes", params: valid_params.except(:address).to_json, headers: headers
+    context "with invalid token" do
+      let(:wrong_token) { '1a2b3c4d' }
 
-        expect(response.body).to eq("{\"errors\":[\"Quote: Address is missing\"]}")
-      end
+      it "produces security token violation error when the token does not match any of db records" do
+        get "/api/v1/quotes/#{wrong_token}"
 
-      it "returns an error when US zip code is invalid" do
-        my_params = valid_params.dup
-        address = my_params[:address].dup
-        address[:postal_code] = "12345-67"
-        my_params[:address] = address
-        post "/api/v1/quotes", params: my_params.to_json, headers: headers
-
-        expect(response.body).to eq("{\"errors\":[\"Postal code Invalid US postal code\"]}")
+        expect(response.body).to eq("{\"error\":\"Invalid id(security token): #{wrong_token}\"}"
+                                 )
       end
     end
   end
