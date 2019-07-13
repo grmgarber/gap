@@ -1,8 +1,8 @@
 class Property < ApplicationRecord
-  has_one :address
-  has_one :expenses_record
-  has_many :units
-  has_many :quotes
+  has_one :address, dependent: :destroy
+  has_one :expenses_record, dependent: :destroy
+  has_many :units, dependent: :destroy
+  has_many :quotes, dependent: :destroy
 
   validates :cap_rate, presence: true, numericality: { greater_than: 0, less_than: 1 }
 
@@ -25,6 +25,6 @@ class Property < ApplicationRecord
   end
 
   def total_expenses
-    expense_record.total_expenses
+    expenses_record.total_expenses
   end
 end

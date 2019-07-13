@@ -1,0 +1,2 @@
+#!/bin/bash
+curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X DELETE http://localhost:3000/api/v1/quotes/148edec5a1268994fd9bf9fac2bebcb0b11acac5ddecd492cc275682790debc4

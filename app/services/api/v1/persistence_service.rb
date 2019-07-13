@@ -60,6 +60,12 @@ module Api
 
         [quote, errors]
       end
+
+      def destroy(quote)
+        prop = quote.property
+        prop.destroy
+        prop.destroyed?
+      end
     end
   end
 end

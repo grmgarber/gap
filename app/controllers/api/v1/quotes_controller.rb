@@ -4,31 +4,54 @@ module Api
 
       before_action :ensure_json_request
 
+      # CREATE method returns a security token associated with the quote.
+      # User must submit this token with SHOW/UPDATE/DELETE requests.  This ensures that only the quote creators
+      # or their agents can access their quotes.
+      # The token plays the role of ID in SHOW/UPDATE/DELETE requests
+
       # api_v1_quotes_path	POST	/quotes(.:format)	api/v1/quotes#create
-      # curl -i -H "Accept: application/json" -H "Content-Type: application/json" -X POST -d '{"json":{"data":"here"}}' http://localhost:3000pi/v1/quotes
       def create
         quote, errors = *persistence_service.create(params[:json])
-        render json: {quote: quote, errors: errors}
-        # if quote.present?
-        #   render json: pricing_service.price(quote)
-        # else
-        #   render json: errors
-        # end
+        if quote.present?
+          render json: pricing_service.calculate(quote).merge(token: quote.token)
+        else
+          render json: {errors: errors }, status: :bad_request
+        end
       end
 
       # api_vi_quote_path	GET	/quotes/:id(.:format) api/v1/quotes#show
+      # Use the value of token returned from CREATE request as :id
       def show
-
+        quote = Quote.find_by(token: params[:id])
+        if quote.present?
+          render json: pricing_service.calculate(quote)
+        else
+          render_unauthorized
+        end
       end
 
       # api_vi_quote_path	PATCH/PUT	/quotes/:id(.:format) api/v1/quotes#update
       def update
-
+        quote = Quote.find_by(token: params[:id])
+        if quote.present?
+          # render json: pricing_service.calculate(quote)
+        else
+          render_unauthorized
+        end
       end
 
       # api_v1_quote_path	DELETE	/quotes/:id(.:format) api/v1/quotes#destroy
-      def delete
-
+      def destroy
+        quote = Quote.find_by(token: params[:id])
+        if quote.present?
+          if persistence_service.destroy(quote)
+            render json: { status: 'Quote and all associated data deleted'}
+          else
+            render json: { status: 'Failed to delete quote' }
+          end
+        else
+          render_unauthorized
+        end
       end
 
       private
@@ -45,6 +68,10 @@ module Api
 
       def pricing_service
         Api::V1::PricingService.new
+      end
+
+      def render_unauthorized
+        render json: {error: "Invalid id(security token): #{params[:id]}"}, status: :unauthorized
       end
     end
   end
