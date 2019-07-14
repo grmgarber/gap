@@ -1,4 +1,6 @@
 class Unit < ApplicationRecord
+  MY_ATTRIBUTES = %i[monthly_rent unit_number nbr_bedrooms nbr_bathrooms vacancy annual_total]
+
   belongs_to :property
 
   validates :monthly_rent, presence: true, numericality: {greater_than: 0}

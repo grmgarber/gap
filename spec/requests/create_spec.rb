@@ -59,7 +59,7 @@ RSpec.describe "API V1 Quotes", type: 'request' do
       it "returns an error when address is missing" do
         post "/api/v1/quotes", params: valid_params.except(:address).to_json, headers: headers
 
-        expect(response.body).to eq("{\"errors\":[\"Quote: Address is missing\"]}")
+        expect(response.body).to eq("{\"errors\":[\"Missing keys: [:address]\"]}")
       end
 
       it "returns an error when US zip code is invalid" do
